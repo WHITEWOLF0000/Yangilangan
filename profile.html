@@ -20,7 +20,6 @@
 
         h2 { font-family: var(--font-logo); font-weight: 800; font-size: 28px; margin-bottom: 25px; margin-top: 10px; }
 
-        /* PROFILE CARD */
         .profile-card { 
             background: white; padding: 22px; border-radius: 28px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; 
@@ -38,7 +37,6 @@
         .user-details b { font-size: 18px; display: block; margin-bottom: 4px; }
         .user-details small { color: #8e8e93; font-weight: 500; font-size: 14px; }
 
-        /* SETTINGS CARD */
         .settings-card { 
             background: white; padding: 22px; border-radius: 28px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 15px;
@@ -64,14 +62,12 @@
         }
         .lang-btn.active .check-mark { display: flex; }
 
-        /* LOGOUT BUTTON */
         .logout-btn {
             width: 100%; padding: 18px; border-radius: 22px; border: none;
             background: #fff0ed; color: #ff3b30; font-weight: 700;
             margin-top: 10px; cursor: pointer; transition: 0.2s;
         }
 
-        /* NAVBAR */
         .navbar { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
@@ -124,15 +120,15 @@
     <button class="logout-btn" id="logout-text" onclick="logout()">Hisobdan chiqish</button>
 
     <nav class="navbar">
-        <a href="index.html" class="nav-item" onclick="navHaptic()">
+        <a href="index.html" class="nav-item">
             <span class="nav-icon">🏠</span>
             <span class="nav-text nav-text-home">Asosiy</span>
         </a>
-        <a href="cart.html" class="nav-item" onclick="navHaptic()">
+        <a href="cart.html" class="nav-item">
             <span class="nav-icon">🛒<span class="badge" id="cart-badge">0</span></span>
             <span class="nav-text nav-text-cart">Savat</span>
         </a>
-        <a href="profile.html" class="nav-item active" onclick="navHaptic()">
+        <a href="profile.html" class="nav-item active">
             <span class="nav-icon">👤</span>
             <span class="nav-text nav-text-profile">Profil</span>
         </a>
@@ -147,19 +143,14 @@
             ru: { title: "Профиль", langTitle: "Язык приложения", home: "Главная", cart: "Корзина", profile: "Профиль", logout: "Выйти из аккаунта", confirmLogout: "Вы уверены, что хотите выйти?" }
         };
 
-        function navHaptic() {
-            tg.HapticFeedback.impactOccurred('medium');
-        }
-
         function changeLanguage(lang) {
             localStorage.setItem('selectedLang', lang);
             tg.HapticFeedback.selectionChanged();
             applyLanguage(lang);
-            // Sahifani yangilash shart emas, lekin Index sahifasiga o'tganda tillar o'zgargan bo'ladi
         }
 
         function applyLanguage(lang) {
-            const t = translations[lang];
+            const t = translations[lang] || translations['uz'];
             document.getElementById('page-title').innerText = t.title;
             document.getElementById('lang-title').innerText = t.langTitle;
             document.getElementById('logout-text').innerText = t.logout;
@@ -197,6 +188,7 @@
             const tgUser = tg.initDataUnsafe?.user;
 
             if (tgUser) {
+                // Telegramdan kelgan ismni va rasmni qo'yish
                 document.getElementById('user-name').innerText = tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "");
                 document.getElementById('user-phone').innerText = tgUser.username ? "@" + tgUser.username : (localData?.phone || "Raqam yo'q");
                 
@@ -205,16 +197,23 @@
                     avatar.innerHTML = `<img src="${tgUser.photo_url}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
                 }
             } else if (localData) {
+                // Agar botdan tashqarida ochilsa, local storagedan olish
                 document.getElementById('user-name').innerText = localData.name;
                 document.getElementById('user-phone').innerText = localData.phone;
             }
         }
 
+        // --- ASOSIY INTEGRATSIYA ---
         window.onload = () => {
             const savedLang = localStorage.getItem('selectedLang') || 'uz';
             applyLanguage(savedLang);
             loadUserInfo();
             updateBadge();
+
+            // Agar botdan #profile bilan kelgan bo'lsa, xush kelibsiz xabarini chiqarish mumkin
+            if(window.location.hash === '#profile') {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
         };
     </script>
 </body>
