@@ -178,20 +178,19 @@
         }
 
         function placeOrder() {
-    // 1. Ma'lumotlarni olish
     const cart = JSON.parse(localStorage.getItem('cart')) || {};
-    const user = JSON.parse(localStorage.getItem('userData')) || {};
     const lang = localStorage.getItem('selectedLang') || 'uz';
+    const user = tg.initDataUnsafe?.user || {};
 
     if (Object.keys(cart).length === 0) {
         alert(lang === 'uz' ? "Savatchangiz bo'sh!" : "Ваша корзина пуста!");
         return;
     }
 
-    // 2. Buyurtma hisoboti
     let itemsReport = "";
     let totalSum = 0;
     
+    // Mahsulotlarni matn ko'rinishiga keltirish
     for (const id in cart) {
         const p = products[id];
         if (p) {
@@ -200,24 +199,21 @@
         }
     }
 
-    // 3. Botga yuboriladigan ob'ekt
+    // Botga yuboriladigan ob'ekt
     const orderData = {
         items: itemsReport,
         total: totalSum,
-        userName: user.name || "Noma'lum",
-        userPhone: user.phone || "Kiritilmagan"
+        userName: user.first_name || "Mijoz"
     };
 
-    // 4. Haptic feedback (Vibratsiya)
     tg.HapticFeedback.notificationOccurred('success');
 
-    // 5. Ma'lumotni yuborish
-    // MUHIM: Faqat bir marta stringify qilamiz
     try {
+        // MA'LUMOTNI YUBORISH
         tg.sendData(JSON.stringify(orderData));
     } catch (e) {
-        console.error("Xatolik:", e);
-        alert("Xatolik yuz berdi. Qayta urinib ko'ring.");
+        console.error("Error:", e);
+        alert("Xatolik yuz berdi.");
     }
 }
 
@@ -225,5 +221,6 @@
     </script>
 </body>
 </html>
+
 
 
