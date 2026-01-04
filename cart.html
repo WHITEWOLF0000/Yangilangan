@@ -70,7 +70,6 @@
         }
 
         .nav-item.active-nav { color: var(--primary); }
-
         .nav-icon { font-size: 24px; font-style: normal; margin-bottom: 4px; position: relative; }
         .nav-text { font-size: 11px; font-weight: 700; }
 
@@ -178,49 +177,54 @@
         }
 
         function placeOrder() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || {};
-    const lang = localStorage.getItem('selectedLang') || 'uz';
-    const user = tg.initDataUnsafe?.user || {};
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            const lang = localStorage.getItem('selectedLang') || 'uz';
+            const user = tg.initDataUnsafe?.user || {};
 
-    if (Object.keys(cart).length === 0) {
-        alert(lang === 'uz' ? "Savatchangiz bo'sh!" : "Ваша корзина пуста!");
-        return;
-    }
+            if (Object.keys(cart).length === 0) {
+                alert(lang === 'uz' ? "Savatchangiz bo'sh!" : "Ваша корзина пуста!");
+                return;
+            }
 
-    let itemsReport = "";
-    let totalSum = 0;
-    
-    // Mahsulotlarni matn ko'rinishiga keltirish
-    for (const id in cart) {
-        const p = products[id];
-        if (p) {
-            itemsReport += `• ${p[lang]} x ${cart[id]}\n`;
-            totalSum += p.price * cart[id];
+            let itemsReport = "";
+            let totalSum = 0;
+            
+            for (const id in cart) {
+                const p = products[id];
+                if (p) {
+                    itemsReport += `• ${p[lang]} x ${cart[id]}\n`;
+                    totalSum += p.price * cart[id];
+                }
+            }
+
+            // Botga yuboriladigan ma'lumot
+            const orderData = {
+                items: itemsReport,
+                total: totalSum,
+                userName: user.first_name || "Mijoz"
+            };
+
+            tg.HapticFeedback.notificationOccurred('success');
+
+            try {
+                // 1. SAVATCHANI TOZALASH (Eskisi o'chib ketishi uchun)
+                localStorage.removeItem('cart');
+
+                // 2. MA'LUMOTNI YUBORISH
+                tg.sendData(JSON.stringify(orderData));
+
+                // 3. OYNANI YOPISH
+                setTimeout(() => {
+                    tg.close();
+                }, 100);
+
+            } catch (e) {
+                console.error("Error:", e);
+                alert("Xatolik yuz berdi.");
+            }
         }
-    }
-
-    // Botga yuboriladigan ob'ekt
-    const orderData = {
-        items: itemsReport,
-        total: totalSum,
-        userName: user.first_name || "Mijoz"
-    };
-
-    tg.HapticFeedback.notificationOccurred('success');
-
-    try {
-        // MA'LUMOTNI YUBORISH
-        tg.sendData(JSON.stringify(orderData));
-    } catch (e) {
-        console.error("Error:", e);
-        alert("Xatolik yuz berdi.");
-    }
-}
 
         window.onload = updateCart;
     </script>
 </body>
 </html>
-
-
-
