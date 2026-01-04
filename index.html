@@ -95,7 +95,7 @@
     </div>
 
     <div id="main-content">
-        <h3 class="lang-key" data-key="menu_title" style="font-family: var(--font-logo); font-size: 24px;">🍟 Menyu</h3>
+        <h3 style="font-family: var(--font-logo); font-size: 24px;">🍟 Menyu</h3>
         <div id="menu-container"></div>
         
         <nav class="navbar">
@@ -120,10 +120,8 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const translations = {
-            uz: { add_btn: "Qo'shish", view_cart: "SAVATNI KO'RISH" },
-            ru: { add_btn: "Добавить", view_cart: "ПОСМОТРЕТЬ КОРЗИНУ" }
-        };
+        // MainButton har doim yashirin bo'lishini ta'minlaymiz
+        tg.MainButton.hide();
 
         const foods = [
             { id: 1, uz: "Lavash", ru: "Лаваш", price: 32000, img: "https://maxway.uz/_next/image?url=https%3A%2F%2Fcdn.delever.uz%2Frepository%2Fproduct%2F71d9f860-29c3-4f9e-a890-482f09673906.jpg&w=1920&q=75" },
@@ -160,7 +158,7 @@
                         <b style="min-width:15px;text-align:center;">${qty}</b>
                         <button onclick="updateQty(${f.id},1)" style="border:none;background:white;width:28px;height:28px;border-radius:8px;color:var(--primary);font-weight:800;">+</button>
                        </div>`
-                    : `<button onclick="updateQty(${f.id},1)" style="background:var(--primary);color:white;border:none;padding:8px 15px;border-radius:10px;font-weight:700;font-size:13px;">${translations[lang].add_btn}</button>`;
+                    : `<button onclick="updateQty(${f.id},1)" style="background:var(--primary);color:white;border:none;padding:8px 15px;border-radius:10px;font-weight:700;font-size:13px;">Qo'shish</button>`;
                 
                 const card = document.createElement('div');
                 card.className = 'food-card';
@@ -184,7 +182,6 @@
             localStorage.setItem('cart', JSON.stringify(cart));
             tg.HapticFeedback.impactOccurred('light');
             renderMenu();
-            updateMainButton();
         }
 
         function updateBadge() {
@@ -194,24 +191,7 @@
             if(b) { b.innerText = count; b.style.display = count > 0 ? 'flex' : 'none'; }
         }
 
-        function updateMainButton() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            const count = Object.values(cart).reduce((a, b) => a + b, 0);
-            const lang = localStorage.getItem('selectedLang') || 'uz';
-            
-            if (count > 0) {
-                tg.MainButton.setText(translations[lang].view_cart);
-                tg.MainButton.show();
-            } else {
-                tg.MainButton.hide();
-            }
-        }
-
-        // --- ASOSIY O'ZGARISH: Savatga o'tish ---
-        tg.onEvent('mainButtonClicked', () => {
-            window.location.href = 'cart.html';
-        });
-
+        // --- SAVATGA O'TISH ---
         function openCart() {
             const cart = JSON.parse(localStorage.getItem('cart')) || {};
             if (Object.keys(cart).length > 0) {
@@ -228,7 +208,6 @@
                 document.getElementById('main-content').style.display = 'block';
                 setTimeout(() => document.getElementById('main-content').style.opacity = '1', 50);
                 renderMenu();
-                updateMainButton();
             }
         };
     </script>
