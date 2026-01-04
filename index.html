@@ -95,7 +95,7 @@
     </div>
 
     <div id="main-content">
-        <h3 style="font-family: var(--font-logo); font-size: 24px;">🍟 Menyu</h3>
+        <h3 class="lang-key" data-key="menu_title" style="font-family: var(--font-logo); font-size: 24px;">🍟 Menyu</h3>
         <div id="menu-container"></div>
         
         <nav class="navbar">
@@ -119,9 +119,12 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.MainButton.hide(); // Ko'k tugmani butunlay yashirish
 
-        // MainButton har doim yashirin bo'lishini ta'minlaymiz
-        tg.MainButton.hide();
+        const translations = {
+            uz: { add_btn: "Qo'shish", view_cart: "SAVATNI KO'RISH" },
+            ru: { add_btn: "Добавить", view_cart: "ПОСМОТРЕТЬ КОРЗИНУ" }
+        };
 
         const foods = [
             { id: 1, uz: "Lavash", ru: "Лаваш", price: 32000, img: "https://maxway.uz/_next/image?url=https%3A%2F%2Fcdn.delever.uz%2Frepository%2Fproduct%2F71d9f860-29c3-4f9e-a890-482f09673906.jpg&w=1920&q=75" },
@@ -144,6 +147,20 @@
             }
         }
 
+        // BOT UCHUN HISOBOT TAYYORLASH (YANGI QO'SHILDI)
+        function getCartReport() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            let report = "";
+            let total = 0;
+            foods.forEach(f => {
+                if (cart[f.id]) {
+                    report += `${f.uz} x ${cart[f.id]}\n`;
+                    total += f.price * cart[f.id];
+                }
+            });
+            return { report, total };
+        }
+
         function renderMenu() {
             const container = document.getElementById('menu-container');
             const cart = JSON.parse(localStorage.getItem('cart')) || {};
@@ -158,7 +175,7 @@
                         <b style="min-width:15px;text-align:center;">${qty}</b>
                         <button onclick="updateQty(${f.id},1)" style="border:none;background:white;width:28px;height:28px;border-radius:8px;color:var(--primary);font-weight:800;">+</button>
                        </div>`
-                    : `<button onclick="updateQty(${f.id},1)" style="background:var(--primary);color:white;border:none;padding:8px 15px;border-radius:10px;font-weight:700;font-size:13px;">Qo'shish</button>`;
+                    : `<button onclick="updateQty(${f.id},1)" style="background:var(--primary);color:white;border:none;padding:8px 15px;border-radius:10px;font-weight:700;font-size:13px;">${translations[lang].add_btn}</button>`;
                 
                 const card = document.createElement('div');
                 card.className = 'food-card';
@@ -191,7 +208,6 @@
             if(b) { b.innerText = count; b.style.display = count > 0 ? 'flex' : 'none'; }
         }
 
-        // --- SAVATGA O'TISH ---
         function openCart() {
             const cart = JSON.parse(localStorage.getItem('cart')) || {};
             if (Object.keys(cart).length > 0) {
