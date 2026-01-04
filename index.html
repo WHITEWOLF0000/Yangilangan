@@ -23,7 +23,7 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px;
         }
 
-        /* MAIN CONTENT - MARKAZLASHTIRISH */
+        /* MAIN CONTENT */
         #main-content { 
             display: none; 
             padding: 20px 15px 120px 15px; 
@@ -101,17 +101,17 @@
         <nav class="navbar">
             <a href="index.html" class="nav-item active" onclick="navHaptic()">
                 <span class="nav-icon">🏠</span>
-                <span class="nav-text lang-key" data-key="nav_home">Asosiy</span>
+                <span class="nav-text">Asosiy</span>
             </a>
             
             <a href="javascript:void(0)" class="nav-item" onclick="openCart()">
                 <span class="nav-icon">🛒<span class="badge" id="cart-count">0</span></span>
-                <span class="nav-text lang-key" data-key="nav_cart">Savat</span>
+                <span class="nav-text">Savat</span>
             </a>
             
             <a href="profile.html" class="nav-item" onclick="navHaptic()">
                 <span class="nav-icon">👤</span>
-                <span class="nav-text lang-key" data-key="nav_profile">Profil</span>
+                <span class="nav-text">Profil</span>
             </a>
         </nav>
     </div>
@@ -120,13 +120,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- BOT SOZLAMALARI ---
-        const BOT_TOKEN = "8527921228:AAE06Z6UL6H9VD3c2QbS740iNOXWh7ruJLY"; 
-        const CHAT_ID = "7649950355"; 
-
         const translations = {
-            uz: { menu_title: "🍟 Menyu", nav_home: "Asosiy", nav_cart: "Savat", nav_profile: "Profil", add_btn: "Qo'shish" },
-            ru: { menu_title: "🍟 Меню", nav_home: "Главная", nav_cart: "Корзина", nav_profile: "Профиль", add_btn: "Добавить" }
+            uz: { add_btn: "Qo'shish", view_cart: "SAVATNI KO'RISH" },
+            ru: { add_btn: "Добавить", view_cart: "ПОСМОТРЕТЬ КОРЗИНУ" }
         };
 
         const foods = [
@@ -198,77 +194,29 @@
             if(b) { b.innerText = count; b.style.display = count > 0 ? 'flex' : 'none'; }
         }
 
-        // --- SAVAT VA BUYURTMA LOGIKASI ---
         function updateMainButton() {
             const cart = JSON.parse(localStorage.getItem('cart')) || {};
             const count = Object.values(cart).reduce((a, b) => a + b, 0);
+            const lang = localStorage.getItem('selectedLang') || 'uz';
             
             if (count > 0) {
-                tg.MainButton.text = "BUYURTMA BERISH";
+                tg.MainButton.setText(translations[lang].view_cart);
                 tg.MainButton.show();
             } else {
                 tg.MainButton.hide();
             }
         }
 
-        // MainButton bosilganda yoki Savatga kirilganda ishlaydi
-        tg.onEvent('mainButtonClicked', sendOrder);
-
-        async function sendOrder() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            const user = JSON.parse(localStorage.getItem('userData')) || {};
-            const lang = localStorage.getItem('selectedLang') || 'uz';
-
-            if (Object.keys(cart).length === 0) return;
-
-            let orderText = `🛍 **Yangi Buyurtma!**\n\n`;
-            orderText += `👤 Mijoz: ${user.name}\n`;
-            orderText += `📞 Tel: ${user.phone}\n\n`;
-            orderText += `🛒 Mahsulotlar:\n`;
-
-            let total = 0;
-            foods.forEach(f => {
-                if (cart[f.id]) {
-                    const sum = f.price * cart[f.id];
-                    total += sum;
-                    orderText += `• ${f[lang]} x ${cart[f.id]} = ${sum.toLocaleString()} so'm\n`;
-                }
-            });
-
-            orderText += `\n💰 **Jami: ${total.toLocaleString()} so'm**`;
-
-            tg.MainButton.showProgress();
-
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: orderText,
-                        parse_mode: "Markdown"
-                    })
-                });
-
-                if (response.ok) {
-                    tg.showAlert("Rahmat! Buyurtmangiz qabul qilindi.");
-                    localStorage.removeItem('cart');
-                    tg.MainButton.hide();
-                    renderMenu();
-                } else {
-                    tg.showAlert("Xatolik yuz berdi.");
-                }
-            } catch (e) {
-                tg.showAlert("Aloqa xatosi.");
-            } finally {
-                tg.MainButton.hideProgress();
-            }
-        }
+        // --- ASOSIY O'ZGARISH: Savatga o'tish ---
+        tg.onEvent('mainButtonClicked', () => {
+            window.location.href = 'cart.html';
+        });
 
         function openCart() {
             const cart = JSON.parse(localStorage.getItem('cart')) || {};
             if (Object.keys(cart).length > 0) {
-                sendOrder(); // Savat tugmasi bosilganda ham buyurtmani yuborish funksiyasini chaqiradi
+                tg.HapticFeedback.impactOccurred('medium');
+                window.location.href = 'cart.html'; 
             } else {
                 tg.showAlert("Savatchangiz bo'sh");
             }
