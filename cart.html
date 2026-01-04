@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>FEEL FOOD - Savatcha</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --primary: #ff5722; --bg: #f8f9fa; --text-dark: #1a1a1a; --font-main: 'Inter', sans-serif; --font-logo: 'Poppins', sans-serif; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        body { 
+            background: var(--bg); margin: 0; padding: 25px 15px 160px 15px; 
+            min-height: 100vh; font-family: var(--font-main); color: var(--text-dark); 
+            overflow-x: hidden; -webkit-overflow-scrolling: touch;
+        }
+
+        h2 { font-family: var(--font-logo); font-weight: 800; font-size: 28px; margin-bottom: 25px; margin-top: 10px; }
+
+        .cart-item { 
+            background: white; border-radius: 24px; padding: 14px; 
+            margin-bottom: 15px; display: flex; align-items: center; gap: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .cart-img { width: 75px; height: 75px; border-radius: 18px; object-fit: cover; }
+        
+        .qty-box { 
+            display: flex; align-items: center; gap: 10px; 
+            background: #f1f3f5; padding: 6px; border-radius: 14px; 
+        }
+        .btn-qty { 
+            border: none; background: white; width: 30px; height: 30px; 
+            border-radius: 10px; color: var(--primary); font-weight: 800; 
+            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        #total-section { 
+            position: fixed; bottom: 85px; left: 15px; right: 15px;
+            background: white; padding: 20px; border-radius: 26px; 
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.08);
+            z-index: 900;
+        }
+
+        .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn-order { 
+            width: 100%; background: var(--primary); color: white; border: none; 
+            padding: 18px; border-radius: 20px; font-weight: 700; 
+            font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(255,87,34,0.25);
+        }
+
+        .navbar { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
+            height: 75px; display: flex; justify-content: space-around; align-items: center; 
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.05); z-index: 1000; 
+            border-radius: 25px 25px 0 0;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            text-decoration: none; color: #adb5bd; flex: 1; 
+            transition: all 0.3s ease; position: relative;
+        }
+
+        .nav-item.active-nav { color: var(--primary); animation: bounceTab 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        @keyframes bounceTab {
+            0% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+            50% { transform: translateY(0); }
+            70% { transform: translateY(-4px); }
+            100% { transform: translateY(0); }
+        }
+
+        .nav-icon { font-size: 24px; font-style: normal; margin-bottom: 4px; position: relative; }
+        .nav-text { font-size: 11px; font-weight: 700; }
+
+        .badge { 
+            position: absolute; top: -5px; right: -10px; background: #ff3b30; color: white; 
+            font-size: 10px; width: 18px; height: 18px; border-radius: 50%; 
+            border: 2px solid white; display: none; align-items: center; 
+            justify-content: center; font-weight: 800; 
+        }
+
+        .empty-cart { text-align: center; margin-top: 100px; color: #adb5bd; }
+    </style>
+</head>
+<body>
+
+    <h2 id="cart-title">Savatcha</h2>
+    <div id="cart-list"></div>
+
+    <div id="total-section" style="display:none;">
+        <div class="total-row">
+            <span id="label-total" style="color:#8e8e93; font-weight:600;">Jami:</span>
+            <span id="total-price" style="font-weight:800; font-size:22px; color:var(--text-dark)">0 so'm</span>
+        </div>
+        <button class="btn-order" id="btn-order-text" onclick="placeOrder()">Buyurtma berish</button>
+    </div>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-item" onclick="navHaptic()">
+            <i class="nav-icon">🏠</i>
+            <span class="nav-text" id="nav-home">Asosiy</span>
+        </a>
+        <a href="cart.html" class="nav-item active-nav" onclick="navHaptic()">
+            <i class="nav-icon">🛒<span class="badge" id="cart-badge">0</span></i>
+            <span class="nav-text" id="nav-cart-text">Savatcha</span>
+        </a>
+        <a href="profile.html" class="nav-item" onclick="navHaptic()">
+            <i class="nav-icon">👤</i>
+            <span class="nav-text" id="nav-profile">Profil</span>
+        </a>
+    </nav>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // --- BOT SOZLAMALARI ---
+        const BOT_TOKEN = "8527921228:AAE06Z6UL6H9VD3c2QbS740iNOXWh7ruJLY"; 
+        const CHAT_ID = "7649950355"; 
+
+        const translations = {
+            uz: { title: "Savatcha", total: "Jami:", order: "Buyurtmani tasdiqlash", home: "Asosiy", cart: "Savatcha", profile: "Profil", currency: "so'm", empty: "Savatchangiz bo'sh" },
+            ru: { title: "Корзина", total: "Итого:", order: "Оформить заказ", home: "Главная", cart: "Корзина", profile: "Профиль", currency: "сум", empty: "Ваша корзина пуста" }
+        };
+
+        const products = {
+            1: { uz: "Mol go'shtli Lavash", ru: "Лаваш говяжий", price: 32000, img: "https://maxway.uz/_next/image?url=https%3A%2F%2Fcdn.delever.uz%2Frepository%2Fproduct%2F71d9f860-29c3-4f9e-a890-482f09673906.jpg&w=1920&q=75" },
+            2: { uz: "Gamburger", ru: "Гамбургер", price: 25000, img: "https://maxway.uz/_next/image?url=https%3A%2F%2Fcdn.delever.uz%2Frepository%2Fproduct%2F9b343834-31dc-4919-9430-84c679a61575.jpg&w=1920&q=75" }
+        };
+
+        function navHaptic() { tg.HapticFeedback.impactOccurred('medium'); }
+
+        function updateCart() {
+            const list = document.getElementById('cart-list');
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            const lang = localStorage.getItem('selectedLang') || 'uz';
+            const t = translations[lang];
+            
+            list.innerHTML = '';
+            let total = 0, count = 0;
+            const ids = Object.keys(cart);
+
+            if (ids.length === 0) {
+                list.innerHTML = `<div class="empty-cart"><span style="font-size:60px;">🛒</span><p>${t.empty}</p></div>`;
+            } else {
+                ids.forEach(id => {
+                    const p = products[id];
+                    if(p) {
+                        total += p.price * cart[id]; 
+                        count += cart[id];
+                        list.innerHTML += `
+                            <div class="cart-item">
+                                <img src="${p.img}" class="cart-img">
+                                <div style="flex:1">
+                                    <b style="font-size:15px; display:block;">${p[lang]}</b>
+                                    <small style="color:var(--primary); font-weight:700;">${p.price.toLocaleString()} ${t.currency}</small>
+                                </div>
+                                <div class="qty-box">
+                                    <button class="btn-qty" onclick="changeQ(${id},-1)">-</button>
+                                    <b style="min-width:20px; text-align:center;">${cart[id]}</b>
+                                    <button class="btn-qty" onclick="changeQ(${id},1)">+</button>
+                                </div>
+                            </div>`;
+                    }
+                });
+            }
+
+            document.getElementById('cart-title').innerText = t.title;
+            document.getElementById('label-total').innerText = t.total;
+            document.getElementById('btn-order-text').innerText = t.order;
+            document.getElementById('nav-home').innerText = t.home;
+            document.getElementById('nav-cart-text').innerText = t.cart;
+            document.getElementById('nav-profile').innerText = t.profile;
+
+            document.getElementById('total-section').style.display = count > 0 ? 'block' : 'none';
+            document.getElementById('total-price').innerText = total.toLocaleString() + " " + t.currency;
+            
+            const badge = document.getElementById('cart-badge');
+            badge.innerText = count;
+            badge.style.display = count > 0 ? 'flex' : 'none';
+        }
+
+        function changeQ(id, d) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || {};
+            cart[id] = (cart[id] || 0) + d;
+            if(cart[id] <= 0) delete cart[id];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            tg.HapticFeedback.impactOccurred('light');
+            updateCart();
+        }
+
+        async function placeOrder() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            const user = JSON.parse(localStorage.getItem('userData')) || {};
+            const lang = localStorage.getItem('selectedLang') || 'uz';
+
+            if (Object.keys(cart).length === 0) return;
+
+            tg.showConfirm("Buyurtmani tasdiqlaysizmi?", async (ok) => {
+                if(ok) {
+                    tg.MainButton.showProgress();
+                    
+                    // Xabarni shakllantirish
+                    let orderText = `🛍 **Yangi Buyurtma!**\n\n`;
+                    orderText += `👤 Mijoz: ${user.name || 'Noma`lum'}\n`;
+                    orderText += `📞 Tel: ${user.phone || 'Noma`lum'}\n\n`;
+                    orderText += `🛒 Mahsulotlar:\n`;
+
+                    let total = 0;
+                    for (const id in cart) {
+                        const p = products[id];
+                        const sum = p.price * cart[id];
+                        total += sum;
+                        orderText += `• ${p[lang]} x ${cart[id]} = ${sum.toLocaleString()} so'm\n`;
+                    }
+                    orderText += `\n💰 **Jami: ${total.toLocaleString()} so'm**`;
+
+                    try {
+                        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: CHAT_ID,
+                                text: orderText,
+                                parse_mode: "Markdown"
+                            })
+                        });
+
+                        if (response.ok) {
+                            tg.HapticFeedback.notificationOccurred('success');
+                            tg.showAlert("Rahmat! Buyurtmangiz qabul qilindi.");
+                            localStorage.removeItem('cart');
+                            window.location.href = 'index.html';
+                        } else {
+                            tg.showAlert("Xatolik yuz berdi. Qayta urinib ko'ring.");
+                        }
+                    } catch (e) {
+                        tg.showAlert("Aloqa xatosi: Bot bilan bog'lanib bo'lmadi.");
+                    } finally {
+                        tg.MainButton.hideProgress();
+                    }
+                }
+            });
+        }
+
+        window.onload = updateCart;
+    </script>
+</body>
+</html>
