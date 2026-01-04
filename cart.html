@@ -4,82 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FEEL FOOD - Savatcha</title>
-    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
         :root { --primary: #ff5722; --bg: #f8f9fa; --text-dark: #1a1a1a; --font-main: 'Inter', sans-serif; --font-logo: 'Poppins', sans-serif; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        
-        body { 
-            background: var(--bg); margin: 0; padding: 25px 15px 160px 15px; 
-            min-height: 100vh; font-family: var(--font-main); color: var(--text-dark); 
-            overflow-x: hidden; -webkit-overflow-scrolling: touch;
-        }
-
+        body { background: var(--bg); margin: 0; padding: 25px 15px 160px 15px; min-height: 100vh; font-family: var(--font-main); color: var(--text-dark); overflow-x: hidden; -webkit-overflow-scrolling: touch; }
         h2 { font-family: var(--font-logo); font-weight: 800; font-size: 28px; margin-bottom: 25px; margin-top: 10px; }
-
-        .cart-item { 
-            background: white; border-radius: 24px; padding: 14px; 
-            margin-bottom: 15px; display: flex; align-items: center; gap: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
-            animation: slideIn 0.3s ease-out;
-        }
+        .cart-item { background: white; border-radius: 24px; padding: 14px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-        
         .cart-img { width: 75px; height: 75px; border-radius: 18px; object-fit: cover; }
-        
-        .qty-box { 
-            display: flex; align-items: center; gap: 10px; 
-            background: #f1f3f5; padding: 6px; border-radius: 14px; 
-        }
-        .btn-qty { 
-            border: none; background: white; width: 30px; height: 30px; 
-            border-radius: 10px; color: var(--primary); font-weight: 800; 
-            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-
-        #total-section { 
-            position: fixed; bottom: 85px; left: 15px; right: 15px;
-            background: white; padding: 20px; border-radius: 26px; 
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.08);
-            z-index: 900;
-        }
-
+        .qty-box { display: flex; align-items: center; gap: 10px; background: #f1f3f5; padding: 6px; border-radius: 14px; }
+        .btn-qty { border: none; background: white; width: 30px; height: 30px; border-radius: 10px; color: var(--primary); font-weight: 800; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        #total-section { position: fixed; bottom: 85px; left: 15px; right: 15px; background: white; padding: 20px; border-radius: 26px; box-shadow: 0 -10px 30px rgba(0,0,0,0.08); z-index: 900; }
         .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .btn-order { 
-            width: 100%; background: var(--primary); color: white; border: none; 
-            padding: 18px; border-radius: 20px; font-weight: 700; 
-            font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(255,87,34,0.25);
-        }
-
-        .navbar { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
-            height: 75px; display: flex; justify-content: space-around; align-items: center; 
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.05); z-index: 1000; 
-            border-radius: 25px 25px 0 0;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .nav-item { 
-            display: flex; flex-direction: column; align-items: center; 
-            text-decoration: none; color: #adb5bd; flex: 1; 
-            transition: all 0.3s ease; position: relative;
-        }
-
+        .btn-order { width: 100%; background: var(--primary); color: white; border: none; padding: 18px; border-radius: 20px; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(255,87,34,0.25); }
+        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); height: 75px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -10px 30px rgba(0,0,0,0.05); z-index: 1000; border-radius: 25px 25px 0 0; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #adb5bd; flex: 1; transition: all 0.3s ease; position: relative; }
         .nav-item.active-nav { color: var(--primary); }
         .nav-icon { font-size: 24px; font-style: normal; margin-bottom: 4px; position: relative; }
         .nav-text { font-size: 11px; font-weight: 700; }
-
-        .badge { 
-            position: absolute; top: -5px; right: -10px; background: #ff3b30; color: white; 
-            font-size: 10px; width: 18px; height: 18px; border-radius: 50%; 
-            border: 2px solid white; display: none; align-items: center; 
-            justify-content: center; font-weight: 800; 
-        }
-
+        .badge { position: absolute; top: -5px; right: -10px; background: #ff3b30; color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; border: 2px solid white; display: none; align-items: center; justify-content: center; font-weight: 800; }
         .empty-cart { text-align: center; margin-top: 100px; color: #adb5bd; }
     </style>
 </head>
@@ -93,77 +38,42 @@
             <span id="label-total" style="color:#8e8e93; font-weight:600;">Jami:</span>
             <span id="total-price" style="font-weight:800; font-size:22px; color:var(--text-dark)">0 so'm</span>
         </div>
-        <button class="btn-order" id="btn-order-text" onclick="placeOrder()">Buyurtma berish</button>
+        <button class="btn-order" onclick="placeOrder()">Davom etish</button>
     </div>
 
     <nav class="navbar">
-        <a href="index.html" class="nav-item" onclick="navHaptic()">
-            <i class="nav-icon">🏠</i>
-            <span class="nav-text" id="nav-home">Asosiy</span>
-        </a>
-        <a href="cart.html" class="nav-item active-nav" onclick="navHaptic()">
-            <i class="nav-icon">🛒<span class="badge" id="cart-badge">0</span></i>
-            <span class="nav-text" id="nav-cart-text">Savatcha</span>
-        </a>
-        <a href="profile.html" class="nav-item" onclick="navHaptic()">
-            <i class="nav-icon">👤</i>
-            <span class="nav-text" id="nav-profile">Profil</span>
-        </a>
+        <a href="index.html" class="nav-item"><i>🏠</i><span>Asosiy</span></a>
+        <a href="cart.html" class="nav-item active-nav"><i>🛒<span class="badge" id="cart-badge">0</span></i><span>Savatcha</span></a>
+        <a href="profile.html" class="nav-item"><i>👤</i><span>Profil</span></a>
     </nav>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        const translations = {
-            uz: { title: "Savatcha", total: "Jami:", order: "Davom etish", currency: "so'm", empty: "Savatchangiz bo'sh" },
-            ru: { title: "Корзина", total: "Итого:", order: "Продолжить", currency: "сум", empty: "Ваша корзина пуста" }
-        };
-
         const products = {
             1: { uz: "Mol go'shtli Lavash", ru: "Лаваш говяжий", price: 32000, img: "https://maxway.uz/_next/image?url=https%3A%2F%2Fcdn.delever.uz%2Frepository%2Fproduct%2F71d9f860-29c3-4f9e-a890-482f09673906.jpg&w=1920&q=75" },
             2: { uz: "Gamburger", ru: "Гамбургер", price: 25000, img: "https://maxway.uz/_next/image?url=https%3A%2F%2Fcdn.delever.uz%2Frepository%2Fproduct%2F9b343834-31dc-4919-9430-84c679a61575.jpg&w=1920&q=75" }
         };
 
-        function navHaptic() { tg.HapticFeedback.impactOccurred('medium'); }
-
         function updateCart() {
             const list = document.getElementById('cart-list');
             const cart = JSON.parse(localStorage.getItem('cart')) || {};
             const lang = localStorage.getItem('selectedLang') || 'uz';
-            const t = translations[lang];
-            
             list.innerHTML = '';
             let total = 0, count = 0;
-            const ids = Object.keys(cart);
-
-            if (ids.length === 0) {
-                list.innerHTML = `<div class="empty-cart"><span style="font-size:60px;">🛒</span><p>${t.empty}</p></div>`;
+            
+            if (Object.keys(cart).length === 0) {
+                list.innerHTML = `<div class="empty-cart"><span style="font-size:60px;">🛒</span><p>Savatchangiz bo'sh</p></div>`;
             } else {
-                ids.forEach(id => {
+                for (const id in cart) {
                     const p = products[id];
                     if(p) {
-                        total += p.price * cart[id]; 
-                        count += cart[id];
-                        list.innerHTML += `
-                            <div class="cart-item">
-                                <img src="${p.img}" class="cart-img">
-                                <div style="flex:1">
-                                    <b style="font-size:15px; display:block;">${p[lang]}</b>
-                                    <small style="color:var(--primary); font-weight:700;">${p.price.toLocaleString()} ${t.currency}</small>
-                                </div>
-                                <div class="qty-box">
-                                    <button class="btn-qty" onclick="changeQ(${id},-1)">-</button>
-                                    <b style="min-width:20px; text-align:center;">${cart[id]}</b>
-                                    <button class="btn-qty" onclick="changeQ(${id},1)">+</button>
-                                </div>
-                            </div>`;
+                        total += p.price * cart[id]; count += cart[id];
+                        list.innerHTML += `<div class="cart-item"><img src="${p.img}" class="cart-img"><div style="flex:1"><b>${p[lang]}</b><br><small>${p.price.toLocaleString()} so'm</small></div><div class="qty-box"><button class="btn-qty" onclick="changeQ(${id},-1)">-</button><b>${cart[id]}</b><button class="btn-qty" onclick="changeQ(${id},1)">+</button></div></div>`;
                     }
-                });
+                }
             }
-
             document.getElementById('total-section').style.display = count > 0 ? 'block' : 'none';
-            document.getElementById('total-price').innerText = total.toLocaleString() + " " + t.currency;
+            document.getElementById('total-price').innerText = total.toLocaleString() + " so'm";
             document.getElementById('cart-badge').innerText = count;
             document.getElementById('cart-badge').style.display = count > 0 ? 'flex' : 'none';
         }
@@ -178,52 +88,25 @@
 
         function placeOrder() {
             const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            const lang = localStorage.getItem('selectedLang') || 'uz';
-            const user = tg.initDataUnsafe?.user || {};
+            if (Object.keys(cart).length === 0) return;
 
-            if (Object.keys(cart).length === 0) {
-                alert(lang === 'uz' ? "Savatchangiz bo'sh!" : "Ваша корзина пуста!");
-                return;
-            }
-
-            let itemsReport = "";
+            let itemsText = "";
             let totalSum = 0;
-            
+            const lang = localStorage.getItem('selectedLang') || 'uz';
+
             for (const id in cart) {
-                const p = products[id];
-                if (p) {
-                    itemsReport += `• ${p[lang]} x ${cart[id]}\n`;
-                    totalSum += p.price * cart[id];
+                if (products[id]) {
+                    itemsText += `• ${products[id][lang]} x ${cart[id]}\n`;
+                    totalSum += products[id].price * cart[id];
                 }
             }
 
-            // Botga yuboriladigan ma'lumot
-            const orderData = {
-                items: itemsReport,
-                total: totalSum,
-                userName: user.first_name || "Mijoz"
-            };
-
-            tg.HapticFeedback.notificationOccurred('success');
-
-            try {
-                // 1. SAVATCHANI TOZALASH (Eskisi o'chib ketishi uchun)
-                localStorage.removeItem('cart');
-
-                // 2. MA'LUMOTNI YUBORISH
-                tg.sendData(JSON.stringify(orderData));
-
-                // 3. OYNANI YOPISH
-                setTimeout(() => {
-                    tg.close();
-                }, 100);
-
-            } catch (e) {
-                console.error("Error:", e);
-                alert("Xatolik yuz berdi.");
-            }
+            const data = { items: itemsText, total: totalSum, userName: tg.initDataUnsafe?.user?.first_name || "Mijoz" };
+            
+            localStorage.removeItem('cart'); // SAVATCHANI TOZALASH
+            tg.sendData(JSON.stringify(data)); // BOTGA YUBORISH
+            tg.close();
         }
-
         window.onload = updateCart;
     </script>
 </body>
