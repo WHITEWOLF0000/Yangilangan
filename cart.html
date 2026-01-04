@@ -177,37 +177,39 @@
             updateCart();
         }
 
-        // --- ASOSIY O'ZGARISH: Botga ma'lumot yuborish ---
         function placeOrder() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            const user = JSON.parse(localStorage.getItem('userData')) || {};
-            const lang = localStorage.getItem('selectedLang') || 'uz';
+    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+    const user = JSON.parse(localStorage.getItem('userData')) || {};
+    const lang = localStorage.getItem('selectedLang') || 'uz';
 
-            if (Object.keys(cart).length === 0) return;
+    if (Object.keys(cart).length === 0) return;
 
-            // Savatdagi narsalarni matnga aylantirish
-            let itemsReport = "";
-            let totalSum = 0;
-            for (const id in cart) {
-                const p = products[id];
-                itemsReport += `• ${p[lang]} x ${cart[id]}\n`;
-                totalSum += p.price * cart[id];
-            }
-
-            // Botga yuboriladigan ob'ekt
-            const dataToBot = {
-                items: itemsReport,
-                total: totalSum,
-                userName: user.name || "Ism kiritilmagan",
-                userPhone: user.phone || "Tel kiritilmagan"
-            };
-
-            // Telegram botga sendData orqali yuborish
-            // Bu funksiya Web App-ni yopadi va bot.js dagi 'web_app_data' qismini ishga tushiradi
-            tg.sendData(JSON.stringify(dataToBot));
+    // Bot tushunadigan formatda ma'lumot tayyorlaymiz
+    let itemsReport = "";
+    let totalSum = 0;
+    
+    // products ob'ekti cart.html tepasida ekanligiga ishonch hosil qiling
+    for (const id in cart) {
+        const p = products[id];
+        if (p) {
+            itemsReport += `${p[lang]} x ${cart[id]}\n`;
+            totalSum += p.price * cart[id];
         }
+    }
+
+    const orderData = {
+        items: itemsReport,
+        total: totalSum,
+        userName: user.name || "Noma'lum",
+        userPhone: user.phone || "Kiritilmagan"
+    };
+
+    // MUHIM: fetch o'rniga tg.sendData dan foydalanamiz
+    tg.sendData(JSON.stringify(orderData));
+}
 
         window.onload = updateCart;
     </script>
 </body>
 </html>
+
